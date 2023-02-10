@@ -74,7 +74,7 @@
   
   ssh-keygen -t rsa -C "email" 
   ```
- 
+
 ### 创建项目微服务
 
 商品服务、仓储服务、订单服务、优惠券服务、用户服务
@@ -87,6 +87,90 @@
 
 3）模块名 gulimall-xxx
 
+  ![image-20230210152942270](README.assets/image-20230210152942270.png)
 
 
-  
+
+导入数据库文件
+
+![image-20230210153027177](README.assets/image-20230210153027177.png)
+
+
+
+### 使用人人开源搭建后台管理系统
+
+```
+git clone https://gitee.com/renrenio/renren-fast.git
+```
+
+![image-20230210153512938](README.assets/image-20230210153512938.png)
+
+将lombok 版本修改为：`1.8.20`
+
+```
+git clone https://gitee.com/renrenio/renren-fast-vue.git
+```
+
+![image-20230210153557910](README.assets/image-20230210153557910.png)
+
+M1 芯片运行时需要将node版本降级：
+
+```
+解决方法：将node版本降低为14
+1.安装版本控制工具： sudo npm install n -g
+2.安装14版本：sudo n 14
+  ps:安装稳定版本 sudo n stable
+     安装最新版本 sudo n latest
+3.npm install --ignore-scripts (执行前删除node-modules)
+```
+
+renren-fast-vue 报错：
+
+![image-20230210165556814](README.assets/image-20230210165556814.png)
+
+```
+npm install --save node-sass --unsafe-perm=true --allow-root
+```
+
+![image-20230210170046272](README.assets/image-20230210170046272.png)
+
+
+
+安装代码生成器：
+
+```
+git clone https://gitee.com/renrenio/renren-generator.git
+```
+
+ springboot2.6及以后的版本要在yml加上
+
+```
+spring:
+  main:
+    allow-circular-references: true
+```
+
+要不然会报一个循环引用的错误
+
+使用 renren-generator 生成代码 然后放入之前创建的模块
+
+![image-20230210205148225](README.assets/image-20230210205148225.png)
+
+
+
+
+
+生成代码后将 `UndoLogEntity`中的Longblob修改为 `byte`，java无法识别Longblob
+
+
+
+### product模块
+
+
+
+这里遇到一个bug：
+
+![image-20230210215550542](README.assets/image-20230210215550542.png)
+
+是因为把`renren-generator`中的`@RequestMapping("${moduleName}/${pathName}")`注释掉了。
+
