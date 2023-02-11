@@ -2,6 +2,7 @@ package com.gulimall.product;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * 1。整合mybatis-plus
@@ -16,6 +17,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *2。整合
  */
 @SpringBootApplication
+@EnableDiscoveryClient
 public class GulimallProductApplication {
 
 	public static void main(String[] args) {
