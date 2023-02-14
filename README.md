@@ -376,8 +376,499 @@ public R memberCoupons();
             uri: https://www.qq.com
             predicates:
               - Query=url,qq
-  s
   ```
+
+
+
+### 安装RabbitMQ
+
+`docker pull rabbitmq:3.9.7-management`
+
+镜像安装完成后启动rabbitmq中的插件：`rabbitmq-plugins enable rabbitmq_management`
+
+![image-20230212133044832](README.assets/image-20230212133044832.png)
+
+- 入门案例
+
+  ![image-20230212133329301](README.assets/image-20230212133329301.png)
+
+
+
+### 前端基础
+
+安装vue2:`npm install vue@2.7.14 `
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        Hello World, {{name}} is handsome
+    </div>
+
+</body>
+
+<script src="./node_modules/vue/dist/vue.js"></script>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            name: "张三"
+        }
+    })
+</script>
+</html>
+```
+
+数据绑定`v-model`，模型的变化会引起视图的变化，即实现双向绑定
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <input type="text" v-model="num" />
+        <h1> Hello World, {{name}} is handsome，有 {{num}} 人为他点赞</h1>
+    </div>
+
+</body>
+
+<script src="./node_modules/vue/dist/vue.js"></script>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            name: "张三",
+            num: 0
+        }
+    })
+</script>
+
+</html>
+```
+
+![image-20230212145404341](README.assets/image-20230212145404341.png)
+
+使用`v-on`绑定事件
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <button v-on:click="num++">点赞</button>
+        <h1> Hello World, {{name}} is handsome，有 {{num}} 人为他点赞</h1>
+    </div>
+
+</body>
+
+<script src="./node_modules/vue/dist/vue.js"></script>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            name: "张三",
+            num: 0
+        }
+    })
+</script>
+
+</html>
+```
+
+![image-20230212145531896](README.assets/image-20230212145531896.png)
+
+`v-text`与`v-html`
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <span v-html="msg"> {{msg}} <br /></span>
+        <span v-text="msg"> {{msg}} <br /></span>
+    </div>
+
+</body>
+<script src="./node_modules/vue/dist/vue.js"></script>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            msg: "<h1>Hello World<h1/>",
+        },
+
+    })
+</script>
+
+</html>
+```
+
+![image-20230212150442632](README.assets/image-20230212150442632.png)
+
+使用`v-bind`绑定 href
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <a v-bind:href="link">gogogo</a>
+    </div>
+</body>
+
+<script src="./node_modules/vue/dist/vue.js"></script>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            link: "http://www.baidu.com"
+        }
+    })
+</script>
+</html>
+```
+
+![image-20230212151142076](README.assets/image-20230212151142076.png)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <a v-bind:href="link">gogogo</a><br />
+        设置颜色：<input v-model="setColor" type="text">
+        <span v-bind:class="{active:isActive,'text-danger':hasError}" v-bind:style="{color: setColor}">你好</span>
+    </div>
+</body>
+
+<script src="./node_modules/vue/dist/vue.js"></script>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            link: "http://www.baidu.com",
+            isActive: true,
+            hasError: true,
+            setColor: 'red'
+        }
+    })
+</script>
+
+</html>
+```
+
+![image-20230212161144156](README.assets/image-20230212161144156.png)
+
+`v-model`可以实现双向绑定
+
+
+
+vue组件化
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+
+<body>
+    <div id="app">
+        <button @click="count++">被点击了 {{count}} 次</button>
+        <counter />
+    </div>
+</body>
+
+<script src="../node_modules/vue/dist/vue.js"></script>
+
+<script>
+    //1.全局声明注册一个组件
+    Vue.component("counter", {
+        template: `<button @click="count++">被点击了 {{count}} 次</button>`,
+        data () {
+            return {
+                count: 1
+            }
+        }
+    })
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            count: 0
+        }
+    })
+</script>
+</html>
+```
+
+![image-20230212165335321](README.assets/image-20230212165335321.png)
+
+生命周期：
+
+每个Vue实例被创建时都需要经过一系列的初始化过程：创建实例，装载模版等。Vue为生命周期中的每个状态都设置了钩子函数（舰艇函数），每当Vue实例处于不同的生命周期时，对应的函数都会被触发调用。
+
+![组件生命周期图示](README.assets/lifecycle.16e4c08e.png)
+
+
+
+- vue模块化开发：
+
+  安装webpack：`npm install webpack -g`
+
+  选装vue脚手架：`npm install -g @vue/cli-init`
+
+  初始化 vue 项目：`vue init webpack appname`，vue脚手架使用webpack模版初始化一个appname项目
+
+
+
+### 商品服务
+
+##### 三级分类
+
+```java
+ private List<CategoryEntity> getChildrens(CategoryEntity root, List<CategoryEntity> all) {
+
+        List<CategoryEntity> children = all.stream().filter(categoryEntity -> {
+            return categoryEntity.getParentCid().equals(root.getCatId());
+        }).map(categoryEntity -> {
+            //递归寻找子分类
+            categoryEntity.setChildren(getChildrens(categoryEntity,all));
+            return categoryEntity;
+        }).sorted((menu1,menu2) -> {
+            //分类排序
+            return (menu1.getSort() == null ? 0 : menu1.getSort()) - (menu2.getSort() == null ? 0 : menu2.getSort());
+        }).collect(Collectors.toList());
+
+        return children;
+
+    }
+```
+
+
+
+在后台中的彩单管理功能处创建商品系统下的分类维护菜单
+
+![image-20230212201949365](README.assets/image-20230212201949365.png)
+
+在编写相应的前端代码时首先将后台的`renren-fast`注册到nacos，并将前端所有的请求转发到`gateway`
+
+![image-20230212202107507](README.assets/image-20230212202107507.png)
+
+在后台`gateway`模块进行配置，对路由进行重写：
+
+```
+  cloud:
+    gateway:
+      routes:
+        - id: admin_route
+          uri: lb://renren-fast
+          predicates:
+            - Path=/api/**
+          filters:
+            ##http://localhost:88/api/captcha.jpg => http://localhost:8080/renren-fast/captcha.jpg
+            - RewritePath=/api/(?<segment>.*),/renren-fast/$\{segment}
+```
+
+这里可能会遇到一个错误
+
+![image-20230212203617860](README.assets/image-20230212203617860.png)
+
+在网关服务pom文件添加以下依赖
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+
+SpringCloud Feign在Hoxton.M2 RELEASED版本之后不再使用Ribbon而是使用spring-cloud-loadbalancer	
+
+`gateway`中遇到跨域问题时，添加过滤器
+
+```java
+package com.gulimall.gateway.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+
+@Configuration
+public class CorsConfiguration {
+    @Bean
+    public CorsWebFilter corsWebFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        org.springframework.web.cors.CorsConfiguration corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+
+        //1、配置跨域
+        corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addAllowedOriginPattern("*");
+        corsConfiguration.setAllowCredentials(true);
+
+        source.registerCorsConfiguration("/**",corsConfiguration);
+        return new CorsWebFilter(source);
+    }
+}
+
+```
+
+配置路由文件时需要把精确的放在位置靠前
+
+```
+  cloud:
+    gateway:
+      routes:
+        - id: product_route
+          uri:  lb://gulimall-product
+          predicates:
+            - Path=/api/product/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}
+
+        - id: admin_route
+          uri: lb://renren-fast
+          predicates:
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/renren-fast/$\{segment}
+```
+
+前端代码：
+
+```vue
+<template>
+   <div>
+    <el-tree :data="menus" :props="defaultProps" @node-click="handleNodeClick"></el-tree> 
+   </div>
+  </template>
   
-  
+  <script>
+    export default {
+      created() {
+        this.getMenus()
+      },
+      data() {
+      return {
+        menus: [],
+        defaultProps: {
+          children: 'children',
+          label: 'name'
+        }
+      };
+    },
+    
+    methods: {
+      handleNodeClick(data) {
+        console.log(data);
+      },
+
+      // 获取菜单信息
+      getMenus(){
+        this.axios({
+          method:'get',
+          url:  '/api/product/category/list/tree',
+        }).then((data) => {
+          console.log(data.data.data)
+          this.menus = data.data.data
+
+        })
+
+      }
+    }
+    }
+  </script>
+```
+
+这里使用axios，需要在`main.js`中加入:
+
+```js
+import axios from 'axios'
+Vue.prototype.axios = axios
+axios.defaults.baseURL = 'http://localhost:88'
+```
+
+实现分类维护页面展示所有分类的信息：
+
+![image-20230212215559956](README.assets/image-20230212215559956.png)
+
+添加新增与删除功能，这里的删除使用逻辑删除。
+
+![image-20230213000524650](README.assets/image-20230213000524650.png)
+
+使用`show_status`表示逻辑删除位，配置全局逻辑删除规则
+
+```
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: auto  #主键自增
+      logic-delete-value: 1 #表示已删除
+      logic-not-delete-value: 0 #表示未删除
+```
+
+并给Bean加上逻辑删除注解`@TableLogic`
+
+```
+/**
+* 是否显示[0-不显示，1显示]
+*/
+@TableLogic
+private Integer showStatus;
+```
 
