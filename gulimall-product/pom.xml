@@ -3,63 +3,39 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.6.11</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<groupId>com.gulimaill</groupId>
+		<artifactId>GuilMail</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<groupId>com.gulimall</groupId>
 	<artifactId>gulimall-product</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>gulimall-product</name>
-	<description>gulimall-product</description>
-	<properties>
-		<java.version>1.8</java.version>
-		<spring-cloud.version>2021.0.1</spring-cloud.version>
-	</properties>
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-openfeign</artifactId>
-		</dependency>
+	<description>商品服务</description>
 
+
+	<dependencies>
+
+		<!--引入common-->
 		<dependency>
 			<groupId>com.gulimaill</groupId>
 			<artifactId>gulimall-common</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.gulimaill</groupId>
+			<artifactId>gulimall-thirdParty</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+
 
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-loadbalancer</artifactId>
 		</dependency>
 	</dependencies>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>${spring-cloud.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+
 
 	<build>
 		<plugins>
@@ -77,5 +53,7 @@
 			</plugin>
 		</plugins>
 	</build>
+
+
 
 </project>

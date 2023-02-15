@@ -17,7 +17,7 @@ public class CorsConfiguration {
         //1、配置跨域
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedMethod("*");
-        corsConfiguration.addAllowedOriginPattern("*");
+        corsConfiguration.addAllowedOrigin("*");
         corsConfiguration.setAllowCredentials(true);
 
         source.registerCorsConfiguration("/**",corsConfiguration);

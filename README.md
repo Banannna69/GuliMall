@@ -286,7 +286,7 @@ public R memberCoupons();
 
 ![image-20230211135839204](README.assets/image-20230211135839204.png)
 
-**SpringCloud Feign在Hoxton.M2 RELEASED版本之后不再使用Ribbon而是使用spring-cloud-loadbalancer，所以不引入spring-cloud-loadbalancer会报错**
+**SpringCloud Feign在Hoxton.M2 RELEASED版本之后不再使用Ribbon而是使用spring-cloud-loadbalancer，所以不引入spring-cloud-loadbalancer会报错（无法获取到验证码的bug 503）**
 
 引入依赖：
 
@@ -872,3 +872,425 @@ mybatis-plus:
 private Integer showStatus;
 ```
 
+##### 品牌服务
+
+- 品牌状态快速开关
+
+  对逆向生成的代码进行优化，实现品牌状态快速修改
+
+  vue代码：
+
+  ```vue
+   <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.showStatus"
+              active-color="#13ce66"
+              :active-value="1"
+              :inactive-value="0"
+              @change="updateBrandStatus(scope.row)"
+            >
+            </el-switch>
+  </template>
+  ```
+  
+  用户点击 switch 开关就会调用后台的接口更改对应数据库的字段 ( 决定是否显示)，定义了 @change 事件 只要修后就会触发对应方法
+  
+    ```javascript
+    // 更新brandStatus 状态
+    updateBrandStatus (data) {
+          console.log(`最新信息:`, data)
+          console.log("showStatus:", data.showStatus)
+          let { brandId, showStatus } = data
+          this.$http({
+            url: this.$http.adornUrl('/product/brand/update/status'),
+            method: 'post',
+            data: this.$http.adornData({ brandId, showStatus: showStatus == 1 ? 1 : 0 }, false)
+          }).then(({ data }) => {
+            this.$message({
+              type: 'success',
+              message: '状态修改成功'
+            })
+  
+          })
+        },
+    ```
+  
+  ![image-20230214151106856](README.assets/image-20230214151106856.png)
+
+
+
+
+
+- 品牌图片上传功能
+
+  ![image-20230214150837140](README.assets/image-20230214150837140.png)
+
+  在阿里云开通对象存储服务
+
+  ![image-20230214152412415](README.assets/image-20230214152412415.png)
+
+  创建一个bucket
+
+  ![image-20230214153055294](README.assets/image-20230214153055294.png)
+
+使用服务端签名后直传的文件上传模式
+
+![image-20230214153412306](README.assets/image-20230214153412306.png)
+
+创建阿里云子账并为其分配权限
+
+![image-20230214154743968](README.assets/image-20230214154743968.png)
+
+[阿里云Java上传文件概述](https://help.aliyun.com/document_detail/32013.html)
+
+导入sdk依赖：
+
+```
+<dependency>
+    <groupId>com.aliyun.oss</groupId>
+    <artifactId>aliyun-sdk-oss</artifactId>
+    <version>3.15.1</version>
+</dependency>
+```
+
+测试上传文件流：
+
+```java
+@Test
+	void uploadFile(){
+		// Endpoint以华东1（杭州）为例，其它Region请按实际情况填写。
+		String endpoint = "https://oss-cn-hangzhou.aliyuncs.com";
+		// 阿里云账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM用户进行API访问或日常运维，请登录RAM控制台创建RAM用户。
+		String accessKeyId = "xxx";
+		String accessKeySecret = "xxx";
+		// 填写Bucket名称，例如examplebucket。
+		String bucketName = "xxx";
+		// 填写Object完整路径，完整路径中不能包含Bucket名称，例如exampledir/exampleobject.txt。
+		String objectName = "product/brand/1.jpg";
+		// 填写本地文件的完整路径，例如D:\\localpath\\examplefile.txt。
+		// 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件流。
+		String filePath= "/Users/null/Downloads/1.jpg";
+
+		// 创建OSSClient实例。
+		OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+
+		try {
+			InputStream inputStream = new FileInputStream(filePath);
+			// 创建PutObjectRequest对象。
+			PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName, inputStream);
+			// 设置该属性可以返回response。如果不设置，则返回的response为空。
+			putObjectRequest.setProcess("true");
+			// 创建PutObject请求。
+			PutObjectResult result = ossClient.putObject(putObjectRequest);
+			// 如果上传成功，则返回200。
+			System.out.println(result.getResponse().getStatusCode());
+			System.out.println("upload success");
+		} catch (OSSException oe) {
+			System.out.println("Caught an OSSException, which means your request made it to OSS, "
+					+ "but was rejected with an error response for some reason.");
+			System.out.println("Error Message:" + oe.getErrorMessage());
+			System.out.println("Error Code:" + oe.getErrorCode());
+			System.out.println("Request ID:" + oe.getRequestId());
+			System.out.println("Host ID:" + oe.getHostId());
+		} catch (ClientException | FileNotFoundException ce) {
+			System.out.println("Caught an ClientException, which means the client encountered "
+					+ "a serious internal problem while trying to communicate with OSS, "
+					+ "such as not being able to access the network.");
+			System.out.println("Error Message:" + ce.getMessage());
+		} finally {
+			if (ossClient != null) {
+				ossClient.shutdown();
+			}
+		}
+	}
+```
+
+在该项目中使用springcloudAlibaba封装好的starter，向`common`中的pom文件导入依赖
+
+```xml
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alicloud-oss</artifactId>
+    <version>2.1.0.RELEASE</version>
+</dependency>
+```
+
+[说明文档](https://github.com/alibaba/spring-cloud-alibaba/blob/v2.1.0.RELEASE/spring-cloud-alibaba-examples/oss-example/readme-zh.md)
+
+在配置文件中配置相关的信息
+
+![image-20230214161514533](README.assets/image-20230214161514533.png)
+
+获取签名代码：
+
+```java
+   @RequestMapping("/oss/policy")
+    public Map<String,String> policy(){
+
+
+        // 填写Host地址，格式为https://bucketname.endpoint。
+        String host = "https://" + bucket + "." + endpoint;
+        // 设置上传回调URL，即回调服务器地址，用于处理应用服务器与OSS之间的通信。OSS会在文件上传完成后，把文件上传信息通过此回调URL发送给应用服务器。
+        //String callbackUrl = "https://192.168.0.0:8888";
+        // 设置上传到OSS文件的前缀，可置空此项。置空后，文件将上传至Bucket的根目录下。
+        String format = new SimpleDateFormat("yyyy-MM-dd").format(new Date(System.currentTimeMillis()));
+        String dir = format + "/";
+
+        // 创建ossClient实例。
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessId, accessKey);
+
+        Map<String, String> respMap = null;
+        try {
+            long expireTime = 30;
+            long expireEndTime = System.currentTimeMillis() + expireTime * 1000;
+            Date expiration = new Date(expireEndTime);
+            PolicyConditions policyConds = new PolicyConditions();
+            policyConds.addConditionItem(PolicyConditions.COND_CONTENT_LENGTH_RANGE, 0, 1048576000);
+            policyConds.addConditionItem(MatchMode.StartWith, PolicyConditions.COND_KEY, dir);
+
+            String postPolicy = ossClient.generatePostPolicy(expiration, policyConds);
+            byte[] binaryData = postPolicy.getBytes("utf-8");
+            String encodedPolicy = BinaryUtil.toBase64String(binaryData);
+            String postSignature = ossClient.calculatePostSignature(postPolicy);
+
+            respMap = new LinkedHashMap<String, String>();
+            respMap.put("accessId", accessId);
+            respMap.put("policy", encodedPolicy);
+            respMap.put("signature", postSignature);
+            respMap.put("dir", dir);
+            respMap.put("host", host);
+            respMap.put("expire", String.valueOf(expireEndTime / 1000));
+
+
+            // respMap.put("expire", formatISO8601Date(expiration));
+
+            //JSONObject jasonCallback = new JSONObject();
+            //jasonCallback.put("callbackUrl", callbackUrl);
+            //jasonCallback.put("callbackBody",
+            //        "filename=${object}&size=${size}&mimeType=${mimeType}&height=${imageInfo.height}&width=${imageInfo.width}");
+            //jasonCallback.put("callbackBodyType", "application/x-www-form-urlencoded");
+            //String base64CallbackBody = BinaryUtil.toBase64String(jasonCallback.toString().getBytes());
+            //respMap.put("callback", base64CallbackBody);
+
+            JSONObject ja1 = JSONObject.fromObject(respMap);
+            return respMap;
+        } catch (Exception e) {
+            // Assert.fail(e.getMessage());
+            System.out.println(e.getMessage());
+        }
+        return respMap;
+    }
+}
+```
+
+![image-20230215104437317](README.assets/image-20230215104437317.png)
+
+
+
+在网关添加配置：
+
+```
+- id: thirdParty_route
+  uri: lb://gulimall-thirdParty
+  predicates:
+    - Path=/api/thirdParty/**
+  filters:
+    - RewritePath=/api/thirdParty(?<segment>.*),/$\{segment}
+```
+
+这里为了方便获取到返回的数据，在后台controller中将签名返回的对象编写为R
+
+```java
+ return R.ok().put("data",respMap);
+```
+
+在客户端向阿里云上传文件的时候还会遇到跨域的问题
+
+![image-20230215112119004](README.assets/image-20230215112119004.png)
+
+在阿里云中配置跨域规则
+
+![image-20230215112328568](README.assets/image-20230215112328568.png)
+
+![image-20230215112354725](README.assets/image-20230215112354725.png)
+
+这里遇到一个小bug，在配置文件中的`spring.cloud.alicloud.oss.endpoint`在后台获取其内容时会自动加上`https://`所以在配置文件中使用`spring.cloud.alicloud.oss.endpoints`设置值。
+
+- 在前端显示上传的图片
+
+  ```
+  <template slot-scope="scope">
+    <img :src="scope.row.logo" style="width: 100px; height: 100px" />
+  </template>
+  ```
+
+- 新增品牌时对填写的字段进行校验
+
+  前端的表单校验
+
+  ```
+  <el-form
+        :rules="dataRule"
+  >
+  ```
+
+  ```
+  firstLetter: [
+            {
+              validator: (rule, value, callback) => {
+                if (value === '') {
+                  callback(new Error('首字母必须填写'))
+                } else if (!/^[a-zA-z]$/.test(value)) {
+                  callback(new Error('必须为字母'))
+                } else {
+                  callback()
+                }
+              }, trigger: 'blur'
+            }
+          ],
+          sort: [
+            {
+              validator: (rule, value, callback) => {
+                if (value === '') {
+                  callback(new Error('排序字段必须填写'))
+                } else if (!Number.isInteger(value) || value < 0) {
+                  callback(new Error('排序字段必须为大于等于0的整数'))
+                } else {
+                  callback()
+                }
+              }, trigger: 'blur'
+            }
+          ]
+  ```
+
+  后端使用JSR303进行后端校验
+
+  先给`Brand`实体标注校验注解，然后在`controller`处标注`@Valid`表示进行验证
+
+  ![image-20230215154136499](README.assets/image-20230215154136499.png)
+
+  ![image-20230215154149724](README.assets/image-20230215154149724.png)
+
+给校验的bean后紧跟一个BindingResult就可以获取到校验的结果
+
+```java
+ @RequestMapping("/save")
+      public R save(@Valid @RequestBody BrandEntity brand, BindingResult result){
+brandService.save(brand);
+
+      return R.ok();
+  }
+```
+
+- 统一异常处理
+
+  ![image-20230215161901801](README.assets/image-20230215161901801.png)
+
+  在common中创建一个exction的枚举类来表示相应的错误定义
+
+  ```java
+  package com.gulimall.common.exception;
+  
+  /**
+   * 错误码列表
+   * 10:通用
+   *  001：参数格式化校验
+   *  11：商品
+   *  12：订单
+   *  13：购物车
+   *  14：物流
+   *
+   */
+  public enum BizCodeEnum {
+      /**
+       * 系统未知异常
+       */
+      UNKNOWN_EXCEPTION(10000, "系统未知异常"),
+      /**
+       * 参数校验错误
+       */
+      VALID_EXCEPTION(10001, "参数格式校验失败"),
+      TO_MANY_REQUEST(10002, "请求流量过大，请稍后再试"),
+      SMS_CODE_EXCEPTION(10002, "验证码获取频率太高，请稍后再试"),
+      PRODUCT_UP_EXCEPTION(11000, "商品上架异常"),
+      USER_EXIST_EXCEPTION(15001, "存在相同的用户"),
+      PHONE_EXIST_EXCEPTION(15002, "存在相同的手机号"),
+      NO_STOCK_EXCEPTION(21000, "商品库存不足"),
+      LOGIN_ACCOUNT_PASSWORD_EXCEPTION(15003, "账号或密码错误"),
+              ;
+  
+  
+      private int code;
+      private String msg;
+      BizCodeEnum(int code, String msg) {
+          this.code = code;
+          this.msg = msg;
+      }
+  
+      public int getCode() {
+          return code;
+      }
+  
+      public String getMsg() {
+          return msg;
+      }
+  }
+  
+  ```
+
+  为product模块编写统一异常处理代码
+
+  ```java
+  @Slf4j
+  @RestControllerAdvice(basePackages = "com.gulimall.product.controller") //@ResponseBody + @ControllerAdvice
+  public class GulimallExceptionControllerAdvice {
+  
+  
+      @ExceptionHandler(value= Exception.class)
+      public R handleValidException(MethodArgumentNotValidException e){
+          //log.error("数据校验出现问题：{},异常类型：{}",e.getMessage(),e.getClass());
+          BindingResult result = e.getBindingResult();
+  
+          Map<String,String> errorMap = new HashMap<String,String>();
+          result.getFieldErrors().forEach((fieldError)->{
+              errorMap.put(fieldError.getField(),fieldError.getDefaultMessage());
+          });
+          return R.error(BizCodeEnum.VALID_EXCEPTION.getCode(),BizCodeEnum.VALID_EXCEPTION.getMsg()).put("error",errorMap);
+      }
+  
+      @ExceptionHandler(value= Throwable.class)
+      public R handleException(Throwable e){
+          return R.error(BizCodeEnum.UNKNOWN_EXCEPTION.getCode(),BizCodeEnum.UNKNOWN_EXCEPTION.getMsg());
+      }
+  }
+  ```
+
+  ![image-20230215163109567](README.assets/image-20230215163109567.png)
+
+- 分组校验
+
+  给校验注解标注什么情况需要进行校验
+
+  ```java
+  @TableId
+  	@NotNull(message = "修改必须指定品牌ID",groups ={UpdateGroup.class} )
+  	@Null(message = "新增不能指定品牌ID",groups = {AddGroup.class})
+  	private Long brandId;
+  ```
+
+  使用`@Validated`注解标注表示使用分组校验
+
+  ![image-20230215164050113](README.assets/image-20230215164050113.png)
+
+- 编写自定义校验注解
+
+  添加依赖：
+
+  ```
+  <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+  </dependency>
+  ```
+
+  
